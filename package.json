@@ -38,8 +38,8 @@
   "devDependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",
-    "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.20.0",
+    "@eslint/eslintrc": "^3.3.0",
+    "@eslint/js": "^9.21.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@uppercod/css-to-object": "^1.1.1",
@@ -58,7 +58,7 @@
     "lint-staged": "^15.4.3",
     "lodash.snakecase": "^4.1.1",
     "parse-diff": "^0.11.1",
-    "prettier": "^3.5.0"
+    "prettier": "^3.5.2"
   },
   "dependencies": {
     "axios": "^1.7.9",
