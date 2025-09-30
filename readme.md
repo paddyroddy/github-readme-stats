@@ -312,6 +312,7 @@ Here is a list of all available locales:
 | `cs` | Czech |
 | `nl` | Dutch |
 | `en` | English |
+| `fil` | Filipino |
 | `fi` | Finnish |
 | `fr` | French |
 | `de` | German |
@@ -321,6 +322,7 @@ Here is a list of all available locales:
 | Code | Locale |
 | --- | --- |
 | `el` | Greek |
+| `he` | Hebrew |
 | `hi` | Hindi |
 | `hu` | Hungarian |
 | `id` | Indonesian |
@@ -621,6 +623,9 @@ You can use the `&stats_format=bytes` option to display the stats in bytes inste
 > [!WARNING]\
 > Please be aware that we currently only show data from WakaTime profiles that are public. You therefore have to make sure that **BOTH** `Display code time publicly` and `Display languages, editors, os, categories publicly` are enabled.
 
+> [!WARNING]\
+> In case you just created a new WakaTime account, then it might take up to 24 hours until your stats will become visible on the WakaTime stats card.
+
 Change the `?username=` value to your [WakaTime](https://wakatime.com) username.
 
 ```md
@@ -784,7 +789,9 @@ By default, GitHub does not lay out the cards side by side. To do that, you can 
 
 ## First step: get your Personal Access Token (PAT)
 
-Selecting the right scopes for your token is important in case you want to display private contributions on your stats card. 
+For deploying your own instance of GitHub Readme Stats, you will need to create a GitHub Personal Access Token (PAT). Below are the steps to create one and the scopes you need to select for both classic and fine-grained tokens.
+
+Selecting the right scopes for your token is important in case you want to display private contributions on your cards.
 
 ### Classic token
 
