@@ -1,4 +1,6 @@
-import { jest } from "@jest/globals";
+// @ts-check
+
+import { beforeEach, jest } from "@jest/globals";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import api from "../api/index.js";
@@ -7,6 +9,9 @@ import { renderStatsCard } from "../src/cards/stats.js";
 import { CONSTANTS, renderError } from "../src/common/utils.js";
 import { expect, it, describe, afterEach } from "@jest/globals";
 
+/**
+ * @type {import("../src/fetchers/stats").StatsData}
+ */
 const stats = {
   name: "Anurag Hazra",
   totalStars: 100,
@@ -19,7 +24,7 @@ const stats = {
   totalDiscussionsStarted: 10,
   totalDiscussionsAnswered: 40,
   contributedTo: 50,
-  rank: null,
+  rank: { level: "DEV", percentile: 0 },
 };
 
 stats.rank = calculateRank({
@@ -94,6 +99,10 @@ const faker = (query, data) => {
   return { req, res };
 };
 
+beforeEach(() => {
+  process.env.CACHE_SECONDS = undefined;
+});
+
 afterEach(() => {
   mock.reset();
 });
@@ -115,10 +124,11 @@ describe("Test /api/", () => {
 
     expect(res.setHeader).toBeCalledWith("Content-Type", "image/svg+xml");
     expect(res.send).toBeCalledWith(
-      renderError(
-        error.errors[0].message,
-        "Make sure the provided username is not an organization",
-      ),
+      renderError({
+        message: error.errors[0].message,
+        secondaryMessage:
+          "Make sure the provided username is not an organization",
+      }),
     );
   });
 
@@ -129,11 +139,12 @@ describe("Test /api/", () => {
 
     expect(res.setHeader).toBeCalledWith("Content-Type", "image/svg+xml");
     expect(res.send).toBeCalledWith(
-      renderError(
-        error.errors[0].message,
-        "Make sure the provided username is not an organization",
-        { theme: "merko" },
-      ),
+      renderError({
+        message: error.errors[0].message,
+        secondaryMessage:
+          "Make sure the provided username is not an organization",
+        renderOptions: { theme: "merko" },
+      }),
     );
   });
 
@@ -214,6 +225,38 @@ describe("Test /api/", () => {
           `s-maxage=${CONSTANTS.ERROR_CACHE_SECONDS}, ` +
           `stale-while-revalidate=${CONSTANTS.ONE_DAY}`,
       ],
+    ]);
+  });
+
+  it("should properly set cache using CACHE_SECONDS env variable", async () => {
+    process.env.CACHE_SECONDS = "10000";
+
+    const { req, res } = faker({}, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      ["Content-Type", "image/svg+xml"],
+      [
+        "Cache-Control",
+        `max-age=10000, s-maxage=10000, stale-while-revalidate=${CONSTANTS.ONE_DAY}`,
+      ],
+    ]);
+  });
+
+  it("should disable cache when CACHE_SECONDS is set to 0", async () => {
+    process.env.CACHE_SECONDS = "0";
+
+    const { req, res } = faker({}, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      ["Content-Type", "image/svg+xml"],
+      [
+        "Cache-Control",
+        "no-cache, no-store, must-revalidate, max-age=0, s-maxage=0",
+      ],
+      ["Pragma", "no-cache"],
+      ["Expires", "0"],
     ]);
   });
 
@@ -307,11 +350,11 @@ describe("Test /api/", () => {
 
     expect(res.setHeader).toBeCalledWith("Content-Type", "image/svg+xml");
     expect(res.send).toBeCalledWith(
-      renderError(
-        "This username is blacklisted",
-        "Please deploy your own instance",
-        { show_repo_link: false },
-      ),
+      renderError({
+        message: "This username is blacklisted",
+        secondaryMessage: "Please deploy your own instance",
+        renderOptions: { show_repo_link: false },
+      }),
     );
   });
 
@@ -322,7 +365,10 @@ describe("Test /api/", () => {
 
     expect(res.setHeader).toBeCalledWith("Content-Type", "image/svg+xml");
     expect(res.send).toBeCalledWith(
-      renderError("Something went wrong", "Language not found"),
+      renderError({
+        message: "Something went wrong",
+        secondaryMessage: "Language not found",
+      }),
     );
   });
 
@@ -340,7 +386,10 @@ describe("Test /api/", () => {
 
     expect(res.setHeader).toBeCalledWith("Content-Type", "image/svg+xml");
     expect(res.send).toBeCalledWith(
-      renderError("Could not fetch total commits.", "Please try again later"),
+      renderError({
+        message: "Could not fetch total commits.",
+        secondaryMessage: "Please try again later",
+      }),
     );
     // Received SVG output should not contain string "https://tiny.one/readme-stats"
     expect(res.send.mock.calls[0][0]).not.toContain(

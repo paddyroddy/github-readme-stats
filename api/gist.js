@@ -1,7 +1,6 @@
 // @ts-check
 
 import { CONSTANTS, renderError, parseBoolean } from "../src/common/utils.js";
-import { gistWhitelist } from "../src/common/envs.js";
 import { isLocaleAvailable } from "../src/translations.js";
 import { renderGistCard } from "../src/cards/gist.js";
 import { fetchGist } from "../src/fetchers/gist.js";
@@ -10,6 +9,7 @@ import {
   setCacheHeaders,
   setErrorCacheHeaders,
 } from "../src/common/cache.js";
+import { guardAccess } from "../src/common/access.js";
 
 export default async (req, res) => {
   const {
@@ -29,31 +29,34 @@ export default async (req, res) => {
 
   res.setHeader("Content-Type", "image/svg+xml");
 
-  if (gistWhitelist && !gistWhitelist.includes(id)) {
+  const access = guardAccess({
+    res,
+    id,
+    type: "gist",
+    colors: {
+      title_color,
+      text_color,
+      bg_color,
+      border_color,
+      theme,
+    },
+  });
+  if (!access.isPassed) {
+    return access.result;
+  }
+
+  if (locale && !isLocaleAvailable(locale)) {
     return res.send(
-      renderError(
-        "This gist ID is not whitelisted",
-        "Please deploy your own instance",
-        {
+      renderError({
+        message: "Something went wrong",
+        secondaryMessage: "Language not found",
+        renderOptions: {
           title_color,
           text_color,
           bg_color,
           border_color,
           theme,
-          show_repo_link: false,
         },
-      ),
-    );
-  }
-
-  if (locale && !isLocaleAvailable(locale)) {
-    return res.send(
-      renderError("Something went wrong", "Language not found", {
-        title_color,
-        text_color,
-        bg_color,
-        border_color,
-        theme,
       }),
     );
   }
@@ -86,12 +89,16 @@ export default async (req, res) => {
   } catch (err) {
     setErrorCacheHeaders(res);
     return res.send(
-      renderError(err.message, err.secondaryMessage, {
-        title_color,
-        text_color,
-        bg_color,
-        border_color,
-        theme,
+      renderError({
+        message: err.message,
+        secondaryMessage: err.secondaryMessage,
+        renderOptions: {
+          title_color,
+          text_color,
+          bg_color,
+          border_color,
+          theme,
+        },
       }),
     );
   }
