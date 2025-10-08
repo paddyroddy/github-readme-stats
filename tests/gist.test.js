@@ -1,13 +1,12 @@
 // @ts-check
 
-import { jest } from "@jest/globals";
+import { afterEach, describe, expect, it, jest } from "@jest/globals";
 import "@testing-library/jest-dom";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { expect, it, describe, afterEach } from "@jest/globals";
+import gist from "../api/gist.js";
 import { renderGistCard } from "../src/cards/gist.js";
 import { CONSTANTS, renderError } from "../src/common/utils.js";
-import gist from "../api/gist.js";
 
 const gist_data = {
   data: {
