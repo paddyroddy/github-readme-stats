@@ -15,7 +15,7 @@ jobs:
     #   github.event_name == 'deployment_status' &&
     #   github.event.deployment_status.state == 'success'
     if: false
-    name: Perform 2e2 tests
+    name: Perform e2e tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
