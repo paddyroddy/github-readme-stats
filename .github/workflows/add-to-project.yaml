@@ -5,6 +5,9 @@ on:
   issues:
     types:
       - opened
+  pull_request:
+    types:
+      - opened
 
 jobs:
   add-issue-to-project:
@@ -13,5 +16,4 @@ jobs:
       # yamllint disable-line rule:line-length
       - uses: paddyroddy/.github/actions/add-to-project@v0
         with:
-          app-id: ${{ secrets.APP_ID }}
-          app-pem: ${{ secrets.APP_PEM }}
+          project-token: ${{ secrets.PROJECT_PAT }}
