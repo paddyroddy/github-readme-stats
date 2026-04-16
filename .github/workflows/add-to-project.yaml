@@ -11,9 +11,11 @@ on:
 
 jobs:
   add-issue-to-project:
+    permissions: {}
     runs-on: ubuntu-latest
     steps:
       # yamllint disable-line rule:line-length
       - uses: paddyroddy/.github/actions/add-to-project@v0
         with:
-          project-token: ${{ secrets.PROJECT_PAT }}
+          # yamllint disable-line rule:line-length
+          project-token: ${{ secrets.PROJECT_PAT }} # zizmor: ignore[secrets-outside-env]
